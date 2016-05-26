@@ -85,8 +85,7 @@ describe DockingStation do
     end
 
     it '#release_bike returns a working bike' do
-      allow(bike).to receive(:working?).and_return(true)
-      allow(bike).to receive(:broken).and_return(false)
+      allow(bike).to receive_messages(working?: true, broken: false)
 		  expect(@d.release_bike.working?).to eq true
 	  end
   end
