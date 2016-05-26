@@ -2,6 +2,7 @@ require 'docking_station'
 
 describe DockingStation do
 
+
   describe 'Initialization' do
 
     it 'responds to ::new with either 1 or 0 arguments' do
@@ -13,9 +14,8 @@ describe DockingStation do
 
     expect(subject.capacity).to eq DockingStation::DEFAULT_CAPACITY
     end
-
-
   end
+
 
   context 'In any context' do
     it {is_expected.to respond_to :release_bike}
@@ -32,6 +32,7 @@ describe DockingStation do
         expect{subject.dock(Array.new(DockingStation::DEFAULT_CAPACITY + 1, double(:bike)))}.to raise_error('Not enough capacity in dock to accommodate bikes in array')
       end
   end
+
 
   context 'When dock is empty' do
     before(:each) {@d = DockingStation.new}
@@ -57,32 +58,39 @@ describe DockingStation do
     end
   end
 
-  context 'When dock is full' do
-    d = DockingStation.new
-    20.times{d.dock(Bike.new)}
 
+  context 'When dock is full' do
     it '#dock raises an error' do
-      expect {d.dock(double(:bike))}.to raise_error("Station full.")
+      bike = double :bike
+      d = DockingStation.new
+      20.times{d.dock(bike)}
+      expect {d.dock(bike)}.to raise_error("Station full.")
     end
   end
 
+
   context 'When dock has at least 1 bike' do
+    let (:bike) { double :bike }
     before(:each) do
       @d = DockingStation.new
-      @d.dock(Bike.new) end
+      @d.dock(bike) end
 
     it '#has_bikes? returns true' do
       expect(@d.has_bikes?).to eq(true)
     end
 
     it '#release_bike returns an object' do
-      expect(@d.release_bike.class).to eq(Bike)
+      allow(bike).to receive(:broken).and_return(false)
+      expect(@d.release_bike.class).not_to be(nil)
     end
 
     it '#release_bike returns a working bike' do
+      allow(bike).to receive(:working?).and_return(true)
+      allow(bike).to receive(:broken).and_return(false)
 		  expect(@d.release_bike.working?).to eq true
 	  end
   end
+
 
   context 'When new dock is created' do
       d = DockingStation.new
@@ -92,9 +100,10 @@ describe DockingStation do
       end
   end
 
-  context 'When dock holds a broken bike' do
 
+  context 'When dock holds a broken bike' do
     let (:bike) { double :bike }
+
     it 'should not release a broken bike' do
       d = DockingStation.new
       d.dock(bike)
@@ -102,5 +111,4 @@ describe DockingStation do
       expect{d.release_bike}.to raise_error('Bike is broken!')
     end
   end
-
 end
