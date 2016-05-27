@@ -20,13 +20,9 @@ class DockingStation
 
   end
 
-  def docking_bike(bike, bike_status)
+  def docking_bike(bike)
     raise "sorry, dock is full" if full?
-
-    unless bike_status
-      bike.status = false
-    end
-
+    
     @bikes << bike
   end
 
