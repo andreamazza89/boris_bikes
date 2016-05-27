@@ -22,7 +22,6 @@ class DockingStation
 
   def docking_bike(bike)
     raise "sorry, dock is full" if full?
-    
     @bikes << bike
   end
 
