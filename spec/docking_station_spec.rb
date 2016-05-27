@@ -1,113 +1,33 @@
 require 'docking_station'
 
 describe DockingStation do
+  let(:bike) { double :bike } 
 
+  it { is_expected.to respond_to (:release_bike) }
 
-  describe 'Initialization' do
+  it { is_expected.to respond_to(:docking_bike).with(1).arguments }
 
-    it 'responds to ::new with either 1 or 0 arguments' do
-      expect(DockingStation).to respond_to(:new).with(1).argument
-      expect(DockingStation).to respond_to(:new).with(0).argument
-    end
-
-    it 'sets capacity to default if no argument given' do
-
-    expect(subject.capacity).to eq DockingStation::DEFAULT_CAPACITY
-    end
+  it 'should set a capacity if given argument otherwise default to 20' do
+    expect(DockingStation.new(50).capacity).to eq 50
+    expect(DockingStation.new.capacity).to eq DockingStation::DEFAULT_CAPACITY
   end
 
+  describe '#release_bike' do
+      it 'release a bike' do
+        expect{ subject.release_bike }.to raise_error("sorry, no bikes")
+      end
 
-  context 'In any context' do
-    it {is_expected.to respond_to :release_bike}
-
-    it { is_expected.to respond_to(:dock).with(1).argument }
-
-    it { is_expected.to respond_to(:has_bikes?)}
-
-    it '#dock raises an error if empty array is passed to it' do
-      expect{subject.dock([])}.to raise_error('No bikes in the input array')
-    end
-
-    it '#dock raises error if input array of bikes exceeds capacity' do
-        expect{subject.dock(Array.new(DockingStation::DEFAULT_CAPACITY + 1, double(:bike)))}.to raise_error('Not enough capacity in dock to accommodate bikes in array')
+      it "doesn't release a bike if it's broken" do
+        allow(bike).to receive(:working?) {false}
+        subject.docking_bike(bike)
+        expect(subject.release_bike).to eq "Bike is broken!"
       end
   end
 
-
-  context 'When dock is empty' do
-    before(:each) {@d = DockingStation.new}
-
-    it '#has_bikes? returns false' do
-      expect(subject.has_bikes?).to eq false
-    end
-
-    it '#release_bike raises an error.' do
-      expect {@d.release_bike}.to raise_error("No bikes available.")
-    end
-
-    it '#docked_bikes returns an empty array.' do
-      expect(@d.docked_bikes).to eq([])
-    end
-
-    it '#dock accepts an array of bikes' do
-      expect{@d.dock([double(:bike), double(:bike)])}.not_to raise_error(Exception)
-    end
-
-    it '#dock accepts a bike object' do
-      expect{@d.dock(double(:bike))}.not_to raise_error(Exception)
-    end
-  end
-
-
-  context 'When dock is full' do
-    it '#dock raises an error' do
-      bike = double :bike
-      d = DockingStation.new
-      20.times{d.dock(bike)}
-      expect {d.dock(bike)}.to raise_error("Station full.")
-    end
-  end
-
-
-  context 'When dock has at least 1 bike' do
-    let (:bike) { double :bike }
-    before(:each) do
-      @d = DockingStation.new
-      @d.dock(bike) end
-
-    it '#has_bikes? returns true' do
-      expect(@d.has_bikes?).to eq(true)
-    end
-
-    it '#release_bike returns an object' do
-      allow(bike).to receive(:broken).and_return(false)
-      expect(@d.release_bike.class).not_to be(nil)
-    end
-
-    it '#release_bike returns a working bike' do
-      allow(bike).to receive_messages(working?: true, broken: false)
-		  expect(@d.release_bike.working?).to eq true
-	  end
-  end
-
-
-  context 'When new dock is created' do
-      d = DockingStation.new
-
-      it '#docked_bikes contains empty array' do
-        expect(d.docked_bikes).to eq([])
+  describe '#docking_bike' do
+      it 'stops docking bikes' do
+        DockingStation::DEFAULT_CAPACITY.times { subject.docking_bike bike  }
+        expect {raise "sorry, dock is full"}.to raise_error ("sorry, dock is full")
       end
-  end
-
-
-  context 'When dock holds a broken bike' do
-    let (:bike) { double :bike }
-
-    it 'should not release a broken bike' do
-      d = DockingStation.new
-      d.dock(bike)
-      allow(bike).to receive(:broken).and_return(true)
-      expect{d.release_bike}.to raise_error('Bike is broken!')
-    end
   end
 end

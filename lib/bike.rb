@@ -1,9 +1,11 @@
 class Bike
-  attr_accessor :broken
+  attr_writer :status
 
-	def working?
-		true
-	end
-  
-  
+  def initialize
+    @status = true
+  end
+
+  def working?
+    @status
+  end
 end
